@@ -1,11 +1,17 @@
 import streamlit as st
 import joblib
 from sklearn.preprocessing import StandardScaler
-import pandas as pd
+import os
 
-# Load the trained XGBoost model and the scaler
-loaded_model = joblib.load("xgb_model.joblib")
-scaler = joblib.load("C:\\Users\\Lucie Konlack\\OneDrive - Ashesi University\\2ND YEAR SEMESTER 2 COURSES\\INTRODUCTION TO AI\\Group20_Project\\scaler.joblib")
+# Define your specific path
+specific_path = "C:\\Users\\Lucie Konlack\\OneDrive - Ashesi University\\2ND YEAR SEMESTER 2 COURSES\\INTRODUCTION TO AI\\Group20_Project"
+
+# Load the trained XGBoost model and the scaler using your specific path
+model_path = os.path.join(specific_path, "xgb_model.joblib")
+scaler_path = os.path.join(specific_path, "scaler.joblib")
+
+loaded_model = joblib.load(model_path)
+scaler = joblib.load(scaler_path)
 
 st.title("Player Rating Predictor using XGBoost")
 
@@ -45,3 +51,4 @@ if st.button("Predict"):
     # Make predictions
     prediction = loaded_model.predict(scaled_features)
     st.write(f"Predicted Rating: {prediction[0]}")
+
