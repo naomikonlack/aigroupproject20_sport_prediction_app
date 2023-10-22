@@ -1,54 +1,69 @@
 import streamlit as st
 import joblib
-from sklearn.preprocessing import StandardScaler
+import pandas as pd
 import os
 
-# Define your specific path
-specific_path = "C:\\Users\\Lucie Konlack\\OneDrive - Ashesi University\\2ND YEAR SEMESTER 2 COURSES\\INTRODUCTION TO AI\\Group20_Project"
+# Define the current directory
+current_directory = os.path.dirname(os.path.abspath(__file__))
 
-# Load the trained XGBoost model and the scaler using your specific path
-model_path = os.path.join(specific_path, "xgb_model.joblib")
-scaler_path = os.path.join(specific_path, "scaler.joblib")
+# Define the paths to the model and scaler
+model_path = os.path.join(current_directory, "xgb_model.joblib")
+scaler_path = os.path.join(current_directory, "scaler.joblib")
 
+# Load the trained XGBoost model and the scaler
 loaded_model = joblib.load(model_path)
 scaler = joblib.load(scaler_path)
 
+# Define the Streamlit app title
 st.title("Player Rating Predictor using XGBoost")
 
-# Define input fields for the features
-movement_reactions = st.number_input("Movement Reactions", value=50, key="movement_reactions")
-mentality_composure = st.number_input("Mentality Composure", key="mentality_composure")
-passing = st.number_input("Passing", key="passing")
-potential = st.number_input("Potential", key="potential")
-release_clause_eur = st.number_input("Release Clause (EUR)", key="release_clause_eur")
-dribbling = st.number_input("Dribbling", key="dribbling")
-wage_eur = st.number_input("Wage (EUR)", key="wage_eur")
-power_shot_power = st.number_input("Power Shot Power", key="power_shot_power")
-value_eur = st.number_input("Value (EUR)", key="value_eur")
-mentality_vision = st.number_input("Mentality Vision", key="mentality_vision")
-attacking_short_passing = st.number_input("Attacking Short Passing", key="attacking_short_passing")
+# Create input fields for user input
+st.header("Enter Player Attributes")
 
-# Get all inputs in an array
-features = [
-    movement_reactions, 
-    mentality_composure, 
-    passing, 
-    potential,
-    release_clause_eur, 
-    dribbling, 
-    wage_eur, 
-    power_shot_power, 
-    value_eur, 
-    mentality_vision, 
-    attacking_short_passing
-]
+movement_reactions = st.slider("Movement Reactions", min_value=0, max_value=100, value=50)
+mentality_composure = st.slider("Mentality Composure", min_value=0, max_value=100)
+passing = st.slider("Passing", min_value=0, max_value=100)
+potential = st.slider("Potential", min_value=0, max_value=100)
+release_clause_eur = st.slider("Release Clause (EUR)", min_value=0, max_value=100000000, step=1000000)
+dribbling = st.slider("Dribbling", min_value=0, max_value=100)
+wage_eur = st.slider("Wage (EUR)", min_value=0, max_value=1000000, step=10000)
+power_shot_power = st.slider("Power Shot Power", min_value=0, max_value=100)
+value_eur = st.slider("Value (EUR)", min_value=0, max_value=100000000, step=1000000)
+mentality_vision = st.slider("Mentality Vision", min_value=0, max_value=100)
+attacking_short_passing = st.slider("Attacking Short Passing", min_value=0, max_value=100)
 
-# Button to make predictions
+# Store user inputs in a dictionary
+user_inputs = {
+    "movement_reactions": movement_reactions,
+    "mentality_composure": mentality_composure,
+    "passing": passing,
+    "potential": potential,
+    "release_clause_eur": release_clause_eur,
+    "dribbling": dribbling,
+    "wage_eur": wage_eur,
+    "power_shot_power": power_shot_power,
+    "value_eur": value_eur,
+    "mentality_vision": mentality_vision,
+    "attacking_short_passing": attacking_short_passing
+}
+
+# Create a button to make predictions
 if st.button("Predict"):
-    # Scale the features
-    scaled_features = scaler.transform([features])
+    # Convert user inputs to a DataFrame
+    input_data = pd.DataFrame(user_inputs, index=[0])
     
-    # Make predictions
+    # Scale the input features using the loaded scaler
+    scaled_features = scaler.transform(input_data)
+    
+    # Make predictions using the loaded model
     prediction = loaded_model.predict(scaled_features)
-    st.write(f"Predicted Rating: {prediction[0]}")
+    
+    # Display the predicted rating
+    st.subheader("Predicted Rating:")
+    st.write(prediction[0])
 
+# Add a section for displaying sample data or instructions
+st.sidebar.header("Instructions")
+st.sidebar.markdown("Adjust the sliders to enter player attributes, then click the 'Predict' button to see the predicted rating.")
+
+# You can also add any additional content or explanations here
